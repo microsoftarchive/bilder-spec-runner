@@ -240,8 +240,12 @@ module.exports = function (grunt) {
     patchMochaContext(mocha);
 
     // populate files
-    var globRule = path.resolve(options.base, options.glob);
-    var files = glob.sync(globRule);
+    var globRules = Array.isArray(options.glob) ? options.glob : [options.glob];
+    var files = [];
+    globRules.forEach(function (rule) {
+      rule = path.resolve(options.base, rule);
+      files.push.apply(files, glob.sync(rule));
+    });
 
     // ignore files
     if (options.ignore) {
