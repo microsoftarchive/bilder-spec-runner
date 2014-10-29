@@ -7,8 +7,8 @@ module.exports = function (grunt) {
   var path = require('path');
   var assert = require('assert');
 
-  var jsdom = require('jsdom');
   var jqLoader = require('jquery-loader');
+  var jsdom = require('jquery-loader/node_modules/jsdom').jsdom;
   var xhr = require('jquery-loader/node_modules/xmlhttprequest');
 
   var chai = require('chai');
@@ -26,6 +26,12 @@ module.exports = function (grunt) {
   var glob = grunt.file.glob;
 
   var isTravis = (process.env.TRAVIS === 'true');
+
+  var basicMarkup = '<!doctype html>' +
+                    '<html>' +
+                      '<head></head>' +
+                      '<body></body>' +
+                    '</html>';
 
   // helper for pretty assertion failures inside of asynchronous calls
   // http://stackoverflow.com/questions/11235815/is-there-a-way-to-get-chai-working-with-asynchronous-mocha-tests
@@ -72,7 +78,7 @@ module.exports = function (grunt) {
       try {
         vm.runInThisContext(contents, fs.realpathSync(url));
       } catch (e) {
-         throw new Error('Failed loading module "' + moduleName + '" with error: ' + e);
+         throw new Error('Failed: "' + moduleName + '"\n' + e);
       }
 
       // mark module as loaded
@@ -86,13 +92,15 @@ module.exports = function (grunt) {
     mocha.suite.on('pre-require', function(context) {
 
       // use a fresh new dom for every test
-      var win = jsdom.jsdom().createWindow('<!doctype html><body/>');
+      var document = jsdom(basicMarkup);
+      var win = document.parentWindow;
+      win.document = document;
       win.navigator = context.navigator = {
         'userAgent': 'Bilder Test Runner',
         'appVersion': '1.0.0'
       };
 
-      var $ = jqLoader.create(win, '1.10.1');
+      var $ = jqLoader.create(win, '2.1.0');
 
       // enhance chai's flavour
       chai.use(sinon.chai);
@@ -152,7 +160,10 @@ module.exports = function (grunt) {
     });
   }
 
-  grunt.registerTask('specs/mocha', 'Node based spec-runner for mocha', function () {
+  grunt.registerTask(
+    'specs/mocha',
+    'Node based spec-runner for mocha',
+    function () {
 
     var options = this.options({
       'base': '',
@@ -221,11 +232,12 @@ module.exports = function (grunt) {
     });
 
     // Make paths absolute for files marked for coverage
-    if(options.coverage.files) {
-      var globRules = options.coverage.files;
+    var oFiles = options.coverage.files;
+    if (oFiles) {
       var cFiles = [];
-      globRules.forEach(function(rule) {
-        rule = path.resolve(options.base, options.require.base, rule);
+      var requireBase = options.require.base;
+      oFiles.forEach(function(rule) {
+        rule = path.resolve(options.base, requireBase, rule);
         cFiles.push.apply(cFiles, glob.sync(rule));
       });
       options.coverage.files = cFiles;
@@ -240,7 +252,8 @@ module.exports = function (grunt) {
     patchMochaContext(mocha);
 
     // populate files
-    var globRules = Array.isArray(options.glob) ? options.glob : [options.glob];
+    var oGlob = options.glob;
+    var globRules = Array.isArray(oGlob) ? oGlob : [oGlob];
     var files = [];
     globRules.forEach(function (rule) {
       rule = path.resolve(options.base, rule);
@@ -270,8 +283,7 @@ module.exports = function (grunt) {
       mocha.grep(this.args[0]);
     }
 
-    // Run it
-    mocha.run(function (count) {
+    function onDone (count) {
 
       if (global.__coverage__) {
 
@@ -293,7 +305,14 @@ module.exports = function (grunt) {
       } else {
         done();
       }
-    });
+    }
+
+    // Run it
+    try {
+      mocha.run(onDone);
+    } catch (e) {
+      console.log(e.message, e.stack);
+    }
 
   });
 };
