@@ -1,6 +1,6 @@
 {
   "name": "bilder-spec-runner",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "highly opinianated mocha+chai+sinon based spec runner",
   "repository": {
     "type": "git",
@@ -11,7 +11,7 @@
   "dependencies": {
     "chai": "1.9.1",
     "istanbul": "0.3.0",
-    "jquery-loader": "2.1.0",
+    "jquery-loader": "2.1.1",
     "minimatch": "1.0.0",
     "mocha": "1.21.3",
     "requirejs": "2.1.14",
