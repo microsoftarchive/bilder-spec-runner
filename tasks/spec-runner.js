@@ -7,9 +7,9 @@ module.exports = function (grunt) {
   var path = require('path');
   var assert = require('assert');
 
-  var jqLoader = require('jquery-loader');
-  var jsdom = require('jquery-loader/node_modules/jsdom').jsdom;
-  var xhr = require('jquery-loader/node_modules/xmlhttprequest');
+  var jquery = require('jquery');
+  var jsdom = require('jsdom');
+  var xhr = require('xmlhttprequest');
 
   var chai = require('chai');
   var sinon = require('sinon');
@@ -92,15 +92,15 @@ module.exports = function (grunt) {
     mocha.suite.on('pre-require', function(context) {
 
       // use a fresh new dom for every test
-      var document = jsdom(basicMarkup);
-      var win = document.parentWindow;
+      var document = jsdom.jsdom(basicMarkup);
+      var win = document.defaultView;
       win.document = document;
       win.navigator = context.navigator = {
         'userAgent': 'Bilder Test Runner',
         'appVersion': '1.0.0'
       };
 
-      var $ = jqLoader.create(win, '2.1.0');
+      var $ = jquery(win);
 
       // enhance chai's flavour
       chai.use(sinon.chai);

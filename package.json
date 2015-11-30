@@ -1,21 +1,26 @@
 {
   "name": "bilder-spec-runner",
-  "version": "0.0.6",
+  "version": "1.0.0",
   "description": "highly opinianated mocha+chai+sinon based spec runner",
   "repository": {
     "type": "git",
     "url": "git://github.com/wunderlist/bilder-spec-runner.git"
   },
+  "engines": {
+    "node": ">=4.2.2"
+  },
   "license": "MIT",
   "homepage": "https://github.com/wunderlist/bilder-spec-runner",
   "dependencies": {
-    "chai": "1.9.2",
-    "istanbul": "0.3.2",
-    "jquery-loader": "2.1.1",
-    "minimatch": "1.0.0",
-    "mocha": "2.0.1",
-    "requirejs": "2.1.15",
-    "sinon": "1.11.1",
-    "sinon-chai": "2.6.0"
+    "chai": "3.4.1",
+    "istanbul": "0.4.1",
+    "jquery": "2.1.4",
+    "jsdom": "7.1.0",
+    "minimatch": "3.0.0",
+    "mocha": "2.3.4",
+    "requirejs": "2.1.22",
+    "sinon": "1.17.2",
+    "sinon-chai": "2.8.0",
+    "xmlhttprequest": "1.8.0"
   }
 }
